@@ -19,7 +19,23 @@
             </el-form-item>
 
             <el-form-item label="脚本列表">
-              <el-input v-model="project_detail.scripts"></el-input>
+              <el-select v-model="project_detail.scripts" multiple placeholder="请选择脚本" style="width: 100%">
+                <el-option
+                    v-for="(i,index) in script_list"
+                    :label=" '【' +index+ '】'+ i"
+                    :value="i"
+                ></el-option>
+              </el-select>
+              <el-upload
+                  style="float: left"
+                  :action="get_action()"
+                  :limit="3"
+                  :on-exceed="handleExceed"
+                  :before-remove="beforeRemove"
+                  name="script_file">
+                <el-button type="primary">上传脚本</el-button>
+                <span style="font-size: xx-small;color: darkgray">（脚本上传后，可以在脚本列表输入框中选中，上传重名的脚本会覆盖）</span>
+              </el-upload>
             </el-form-item>
 
             <el-form-item label="压测计划">
@@ -47,6 +63,7 @@ export default {
   data() {
     return {
       project_detail: {},
+      script_list: [],
     }
   },
   mounted() {
@@ -56,6 +73,9 @@ export default {
       }
     }).then(res => {
       this.project_detail = res.data
+    })
+    axios.get('/get_script_list/').then(res => {
+      this.script_list = res.data
     })
   },
   watch: {
@@ -80,7 +100,16 @@ export default {
           type: "success"
         })
       })
-    }
+    },
+    get_action() {//自定义上传文件路径
+      return process.env.VUE_APP_BASE_URL + '/upload_script_file/'
+    },
+    handleExceed(files, fileList) {//限制上传提示
+      this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+    },
+    beforeRemove(file, fileList) {//删除二次提示
+      return this.$confirm(`确定移除 ${file.name}？`);
+    },
   },
   components: {
     Menu,
