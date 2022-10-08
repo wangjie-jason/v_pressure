@@ -5,7 +5,9 @@
         <Menu></Menu>
       </el-aside>
       <el-container>
-        <el-header>欢迎来到压测平台</el-header>
+        <el-header>
+          <h1>欢迎来到压测平台</h1>
+        </el-header>
         <el-main>
           <el-card style="height: calc(100% - 410px);width: 30%;float: left;">
             <div slot="header" class="clearfix">项目概览</div>
@@ -36,10 +38,10 @@
 
 <script>
 
-// 导入echarts
 import axios from "axios";
 import Menu from "@/components/Menu";
 
+// 导入echarts
 let echarts = require('echarts/lib/echarts')
 require('echarts/lib/chart/line')
 require('echarts/lib/component/tooltip')
