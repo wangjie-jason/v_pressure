@@ -29,9 +29,10 @@
               <el-upload
                   style="float: left"
                   :action="get_action()"
-                  :limit="3"
+                  :limit="5"
                   :on-exceed="handleExceed"
                   :before-remove="beforeRemove"
+                  :on-success="get_script_list"
                   name="script_file">
                 <el-button type="primary">上传脚本</el-button>
                 <span style="font-size: xx-small;color: darkgray">（脚本上传后，可以在脚本列表输入框中选中，上传重名的脚本会覆盖）</span>
@@ -42,13 +43,19 @@
               <el-input v-model="project_detail.plan"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button @click="save_project" type="primary">保存</el-button>
+              <el-button @click="run_visible=true" type="primary">加入队列</el-button>
               <el-button @click="restore">恢复默认</el-button>
             </el-form-item>
           </el-form>
         </el-main>
       </el-container>
     </el-container>
+    <el-dialog title="新建任务到队列..." :visible.sync="run_visible">
+      <el-input v-model="des" placeholder="请输入任务描述"></el-input>
+      <br><br>
+      <el-button @click="run" type="success">确定</el-button>
+      <el-button @click="run_visible=false">取消</el-button>
+    </el-dialog>
   </div>
 </template>
 
@@ -64,6 +71,8 @@ export default {
     return {
       project_detail: {},
       script_list: [],
+      des: "",
+      run_visible: false,
     }
   },
   mounted() {
@@ -74,9 +83,7 @@ export default {
     }).then(res => {
       this.project_detail = res.data
     })
-    axios.get('/get_script_list/').then(res => {
-      this.script_list = res.data
-    })
+    this.get_script_list()
   },
   watch: {
     $route() {//监听路由，如果发生变化就执行mounted里的方法刷新页面
@@ -90,14 +97,27 @@ export default {
     }
   },
   methods: {
+    get_script_list() {
+      axios.get('/get_script_list/').then(res => {
+        this.script_list = res.data
+      })
+    },
     restore() {
       window.location.reload()
     },
-    save_project() {
+    run() {
       axios.post('/save_project/', this.project_detail).then(res => {
-        this.$message({
-          message: '保存成功',
-          type: "success"
+        axios.get('/add_task/', {
+          params: {
+            des: this.des,
+            project_id: this.project_detail.id
+          }
+        }).then(res => {
+          this.run_visible = false;
+          this.$message({
+            message: "加入队列成功",
+            type: "success"
+          })
         })
       })
     },
@@ -105,7 +125,7 @@ export default {
       return process.env.VUE_APP_BASE_URL + '/upload_script_file/'
     },
     handleExceed(files, fileList) {//限制上传提示
-      this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+      this.$message.warning(`当前限制选择 5 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
     },
     beforeRemove(file, fileList) {//删除二次提示
       return this.$confirm(`确定移除 ${file.name}？`);
