@@ -47,11 +47,15 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog title="任务列表" width="80%" :visible.sync="task_visible">
+    <el-dialog :before-close="close_tasks" title="任务列表" width="80%" :visible.sync="task_visible">
       <el-table :data="tasks">
         <el-table-column property="id" label="ID" width="50"></el-table-column>
         <el-table-column property="project_id" label="项目ID" width="100"></el-table-column>
-        <el-table-column property="status" label="状态" width="100"></el-table-column>
+        <el-table-column property="status" label="状态" width="100">
+          <template slot-scope="scope">
+            <p :style="{color:get_color(scope.row.status)}"><strong>{{ scope.row.status }}</strong></p>
+          </template>
+        </el-table-column>
         <el-table-column property="stime" label="创建时间" width="200"></el-table-column>
         <el-table-column property="des" label="任务描述"></el-table-column>
         <el-table-column width="150">
@@ -114,10 +118,29 @@ export default {
     },
     get_tasks() {
       this.task_visible = true
+      this.get_tasks_act()
+      this.t1 = setInterval(() => {//每隔2s，自动重复执行里面的函数
+        this.get_tasks_act()
+      }, 2000)
+    },
+    close_tasks(done) {
+      clearInterval(this.t1)
+      done()
+    },
+    get_tasks_act() {
       axios.get('/get_tasks/').then(res => {
         this.tasks = res.data
       })
     },
+    get_color(status) {
+      if (status == '队列中') {
+        return 'blue'
+      } else if (status == '压测中') {
+        return 'green'
+      } else {
+        return 'black'
+      }
+    }
   }
 }
 </script>
