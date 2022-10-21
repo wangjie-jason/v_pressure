@@ -33,7 +33,7 @@
     </el-menu>
 
     <el-dialog title="项目列表" :visible.sync="project_list_visible">
-      <el-table :data="projects">
+      <el-table :data="part_projects">
         <el-table-column property="id" label="ID" width="50"></el-table-column>
         <el-table-column property="name" label="项目名称"></el-table-column>
         <el-table-column width="150">
@@ -46,9 +46,17 @@
           </template>
         </el-table-column>
       </el-table>
+      <br>
+      <el-pagination
+          small
+          layout="prev, pager, next"
+          :total="projects_total"
+          :page-size="projects_pz"
+          @current-change="projects_cc">
+      </el-pagination>
     </el-dialog>
     <el-dialog :before-close="close_tasks" title="任务列表" width="80%" :visible.sync="task_visible">
-      <el-table :data="tasks">
+      <el-table :data="part_tasks">
         <el-table-column property="id" label="ID" width="50"></el-table-column>
         <el-table-column property="project_id" label="项目ID" width="100"></el-table-column>
         <el-table-column property="status" label="状态" width="100">
@@ -65,6 +73,14 @@
           </template>
         </el-table-column>
       </el-table>
+      <br>
+      <el-pagination
+          small
+          layout="prev, pager, next"
+          :total="tasks_total"
+          :page-size="tasks_pz"
+          @current-change="tasks_cc">
+      </el-pagination>
     </el-dialog>
   </div>
 </template>
@@ -81,7 +97,17 @@ export default {
       username: '',
       now_path: window.location.href.split('#')[1].split('?')[0],
       task_visible: false,
-      tasks: []
+      tasks: [],
+      //
+      projects_total: 0,
+      projects_pz: 5,
+      part_projects: [],
+      projects_pageNumber: 1,
+      //
+      tasks_total: 0,
+      tasks_pz: 5,
+      part_tasks: [],
+      tasks_pageNumber: 1,
     }
   },
   mounted() {
@@ -91,9 +117,25 @@ export default {
     }
     axios.get('/get_projects/').then(res => {
       this.projects = res.data
+      this.projects_total = this.projects.length
+      this.projects_cc(1)
     })
   },
   methods: {
+    projects_cc(pageNumber) {
+      if (pageNumber - this.projects_total / this.projects_pz >= 1 && pageNumber > 1) {
+        pageNumber--
+      }
+      this.part_projects = this.projects.slice((pageNumber - 1) * this.projects_pz, pageNumber * this.projects_pz)
+      this.projects_pageNumber = pageNumber
+    },
+    tasks_cc(pageNumber) {
+      if (pageNumber - this.tasks_total / this.tasks_pz >= 1 && pageNumber > 1) {
+        pageNumber--;
+      }
+      this.part_tasks = this.tasks.slice((pageNumber - 1) * this.tasks_pz, pageNumber * this.tasks_pz)
+      this.tasks_pageNumber = pageNumber
+    },
     into(id) {
       this.$router.push('/project_detail/?project_id=' + id);
       window.location.reload()
@@ -105,6 +147,8 @@ export default {
     add_project() {
       axios.get('/add_project/').then(res => {
         this.projects = res.data
+        this.projects_total = this.projects.length
+        this.projects_cc(this.projects_pageNumber)
       })
     },
     delete_project(project_id) {
@@ -114,6 +158,8 @@ export default {
         }
       }).then(res => {
         this.projects = res.data
+        this.projects_total = this.projects.length
+        this.projects_cc(this.projects_pageNumber)
       })
     },
     get_tasks() {
@@ -130,6 +176,8 @@ export default {
     get_tasks_act() {
       axios.get('/get_tasks/').then(res => {
         this.tasks = res.data
+        this.tasks_total = this.tasks.length
+        this.tasks_cc(this.tasks_pageNumber)
       })
     },
     get_color(status) {
