@@ -57,7 +57,8 @@
     </el-dialog>
     <el-dialog :before-close="close_tasks" title="任务列表" width="80%" :visible.sync="task_visible">
       <el-table :data="part_tasks">
-        <el-table-column property="id" label="ID" width="50"></el-table-column>
+        <el-table-column property="id" label="任务ID" width="50"></el-table-column>
+        <el-table-column property="mq_id" label="消息ID" width="100"></el-table-column>
         <el-table-column property="project_id" label="项目ID" width="100"></el-table-column>
         <el-table-column property="status" label="状态" width="100">
           <template slot-scope="scope">
@@ -66,10 +67,11 @@
         </el-table-column>
         <el-table-column property="stime" label="创建时间" width="200"></el-table-column>
         <el-table-column property="des" label="任务描述"></el-table-column>
-        <el-table-column width="150">
+        <el-table-column width="200">
           <template slot-scope="scope">
             <el-button size="mini" type="primary">报告</el-button>
-            <el-button size="mini" type="danger">终止</el-button>
+            <el-button :id="'stop_btn_'+scope.row.id" @click="stop_task(scope.row.id)" size="mini" type="danger">终止
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -188,6 +190,18 @@ export default {
       } else {
         return 'black'
       }
+    },
+    stop_task(id) {
+      var d = document.getElementById('stop_btn_' + id)
+      d.innerText = "终止中"
+      axios.get('/stop_task/?id=' + id).then(res => {
+        d.innerText = '已终止'
+        document.getElementById('stop_btn_' + id).disabled = true;
+        this.$message({
+          message: '已终止',
+          type: "error"
+        })
+      })
     }
   }
 }
