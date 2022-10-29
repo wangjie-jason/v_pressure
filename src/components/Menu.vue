@@ -70,7 +70,8 @@
         <el-table-column width="200">
           <template slot-scope="scope">
             <el-button size="mini" type="primary">报告</el-button>
-            <el-button :id="'stop_btn_'+scope.row.id" @click="stop_task(scope.row.id)" size="mini" type="danger">终止
+            <el-button :disabled="get_able(scope.row.status)" :id="'stop_btn_'+scope.row.id"
+                       @click="stop_task(scope.row.id)" size="mini" type="danger">{{ scope.row.stop ? '已终止' : '终止' }}
             </el-button>
           </template>
         </el-table-column>
@@ -193,15 +194,21 @@ export default {
     },
     stop_task(id) {
       var d = document.getElementById('stop_btn_' + id)
-      d.innerText = "终止中"
+      d.innerText = "终止中..."
       axios.get('/stop_task/?id=' + id).then(res => {
         d.innerText = '已终止'
-        document.getElementById('stop_btn_' + id).disabled = true;
         this.$message({
-          message: '已终止',
+          message: res.data.Message,
           type: "error"
         })
       })
+    },
+    get_able(status) {
+      if (status == '队列中' || status == '压测中') {
+        return false
+      } else {
+        return true
+      }
     }
   }
 }

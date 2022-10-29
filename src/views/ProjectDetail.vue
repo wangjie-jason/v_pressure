@@ -42,6 +42,15 @@
             <el-form-item label="压测计划">
               <el-input v-model="project_detail.plan"></el-input>
             </el-form-item>
+            <el-form-item label="计划说明" style="text-align: left">
+              <span style="font-size: xx-small;color: red">
+                (多个阶段用英文逗号,隔开）（每秒发一轮）（请不要忽略压测机性能而随意填充大数宇）<br>
+                【常量压测】0-5-2：下标为0（指第一个脚本）执行2轮，每轮5个并发。<br>
+                【阶梯增压】0-10/90-5：下标为0的脚本执行5轮，并发量从10逐步升到90，即 (10,30,50,70,90)<br>
+                【无限增压】0-10+5：下标为0的脚本从10并发开始，每轮增加5个并发量，(安全阀为100轮）注意增量不要过大。<br>
+                【瞬时增压】0-10_100_1000-5：下标为0的脚本从10并发执行5轮后，突然增压到100并发并执行5轮后，再突然增压到1000并发并执行5轮，以此类推。<br>
+              </span>
+            </el-form-item>
             <el-form-item>
               <el-button @click="run_visible=true" type="primary">加入队列</el-button>
               <el-button @click="restore">恢复默认</el-button>
