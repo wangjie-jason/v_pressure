@@ -26,17 +26,6 @@
                     :value="i"
                 ></el-option>
               </el-select>
-              <el-upload
-                  style="float: left"
-                  :action="get_action()"
-                  :limit="5"
-                  :on-exceed="handleExceed"
-                  :before-remove="beforeRemove"
-                  :on-success="get_script_list"
-                  name="script_file">
-                <el-button type="primary">上传脚本</el-button>
-                <span style="font-size: xx-small;color: darkgray">（脚本上传后，可以在脚本列表输入框中选中，上传重名的脚本会覆盖）</span>
-              </el-upload>
             </el-form-item>
 
             <el-form-item label="压测计划">
@@ -129,15 +118,6 @@ export default {
           })
         })
       })
-    },
-    get_action() {//自定义上传文件路径
-      return process.env.VUE_APP_BASE_URL + '/upload_script_file/'
-    },
-    handleExceed(files, fileList) {//限制上传提示
-      this.$message.warning(`当前限制选择 5 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
-    },
-    beforeRemove(file, fileList) {//删除二次提示
-      return this.$confirm(`确定移除 ${file.name}？`);
     },
   },
   components: {
