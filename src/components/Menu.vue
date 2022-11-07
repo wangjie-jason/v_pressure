@@ -28,6 +28,9 @@
         <a href="http://localhost:8000/admin/auth/user/">
           <el-menu-item>用户管理</el-menu-item>
         </a>
+        <a href="http://localhost:8000/clear_all/">
+          <el-menu-item>清空任务和消息</el-menu-item>
+        </a>
       </el-submenu>
       <el-menu-item @click="logout" style="color: grey;font-size: xx-small"> 退出 {{ username }}</el-menu-item>
     </el-menu>

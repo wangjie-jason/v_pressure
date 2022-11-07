@@ -12,6 +12,9 @@
           <el-form :model="project_detail" label-width="80px">
             <el-form-item label="项目ID : " style="text-align: left">
               {{ project_detail.id }}
+              &#12288;
+              <el-button @click="run_visible=true" type="primary">加入队列</el-button>
+              <el-button @click="restore">恢复默认</el-button>
             </el-form-item>
 
             <el-form-item label="项目名称">
@@ -20,7 +23,7 @@
 
             <el-form-item label="压测计划">
               <el-table :data="project_detail.plan">
-                <el-table-column label="脚本名">
+                <el-table-column width="200" label="脚本名">
                   <template slot-scope="scope">
                     <el-select v-model="scope.row.name" placeholder="请选择">
                       <el-option
@@ -31,16 +34,27 @@
                     </el-select>
                   </template>
                 </el-table-column>
-                <el-table-column label="原始并发数">
+                <el-table-column width="80">
+                  <template slot-scope="scope">
+                    <span v-text="get_text(scope.row.name)"></span>
+                  </template>
+                </el-table-column>
+                <el-table-column width="120" label="原始并发数">
                   <template slot-scope="scope">
                     <el-input v-model="scope.row.old_num"></el-input>
                   </template>
                 </el-table-column>
-                <el-table-column label="原始轮数">
+                <el-table-column width="120" label="原始轮数">
                   <template slot-scope="scope">
                     <el-input v-model="scope.row.old_round"></el-input>
                   </template>
                 </el-table-column>
+                <el-table-column label="脚本参数">
+                  <template slot-scope="scope">
+                    <el-input v-model="scope.row.script_params"></el-input>
+                  </template>
+                </el-table-column>
+
                 <el-table-column>
                   <template slot="header">
                     <el-button size="mini" @click="add_step">新增阶段</el-button>
@@ -60,9 +74,11 @@
                 【瞬时增压】原始并发数=10_100_1000，原始轮数=5：此阶段脚本从10并发执行5轮后，突然增压到100并发并执行5轮后，再突然增压到1000并发并执行5轮，以此类推。<br>
               </span>
             </el-form-item>
-            <el-form-item>
-              <el-button @click="run_visible=true" type="primary">加入队列</el-button>
-              <el-button @click="restore">恢复默认</el-button>
+            <el-form-item label="脚本参数" style="text-align: left">
+              <span style="font-size: xx-small;color: red">
+                【other】其他类型脚本为调用shell命令方式运行，脚本参数用空格隔开。 <br>
+                【python】类型脚本为函数调用方式运行，入口函数调用及传参按此格式：函数名(参数1,参数2...)
+              </span>
             </el-form-item>
           </el-form>
         </el-main>
@@ -115,11 +131,20 @@ export default {
     }
   },
   methods: {
+    get_text(name) {
+      if (name.split('/')[0] == 'other') {
+        return '低性能'
+      } else if (name.split('/')[0] == 'python') {
+        return '中高性能'
+      } else if (name.split('/')[0] == 'go') {
+        return '高性能'
+      }
+    },
     delete_step(index) {
       this.project_detail.plan.splice(index, 1)
     },
     add_step() {
-      this.project_detail.plan.push({'name': '', 'old_num': '', 'old_round': ''})
+      this.project_detail.plan.push({'name': '', 'old_num': '', 'old_round': '', 'script_params': ''})
     },
     get_script_list() {
       axios.get('/get_script_list/').then(res => {
