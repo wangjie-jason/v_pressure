@@ -72,7 +72,9 @@
         <el-table-column property="des" label="任务描述"></el-table-column>
         <el-table-column width="200">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary">报告</el-button>
+            <el-button :disabled="!get_able(scope.row.status)" @click="report(scope.row.id)" size="mini" type="primary">
+              报告
+            </el-button>
             <el-button :disabled="get_able(scope.row.status)" :id="'stop_btn_'+scope.row.id"
                        @click="stop_task(scope.row.id)" size="mini" type="danger">{{ scope.row.stop ? '已终止' : '终止' }}
             </el-button>
@@ -105,11 +107,24 @@
         <el-button type="primary">上传脚本</el-button>
       </el-upload>
     </el-dialog>
+    <el-dialog :title="'性能测试报告:  '+now_task_id" :visible.sync="report_visible" width="90%">
+      <div id="myChart" style="width: 100%;height: 300px"></div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+
+// 导入echarts
+let echarts = require('echarts/lib/echarts')
+require('echarts/lib/chart/line')
+require('echarts/lib/component/tooltip')
+require('echarts/lib/component/title')
+require('echarts/lib/component/legend')
+import {GridComponent} from 'echarts/components'
+
+echarts.use([GridComponent]);
 
 export default {
   name: "Menu",
@@ -133,7 +148,46 @@ export default {
       tasks_pageNumber: 1,
       //
       up_script_visible: false,
-      script_model: 'other'
+      script_model: 'other',
+      //
+      now_task_id: '',
+      report_visible: false,
+      option: {
+        legend: {data: []}, //标题
+        xAxis: {
+          type: 'category', //样式
+          data: [], //x轴数据
+          name: '自然时间轴(s)',
+          nameTextStyle: {
+            fontWeight: 400, //字体宽度
+            fontSize: 15, //字体大小
+            color: 'green' //字体颜色
+          },
+          axisTick: {
+            show: true, //显示刻度
+            alignWithLabel: true, //对齐文案
+            interval: '0', //刻度间距
+            length: 5, //标尺长度
+            inside: false //标尺 标记 朝向
+          },
+          axisLabel: {
+            interval: 0, //刻度间距
+            rotate: 0 //角度旋转
+          }
+        },
+        yAxis: { //y轴数据
+          type: 'value',
+          name: '平均时间&',
+          nameTextStyle: {
+            fontWeight: 400,
+            fontSize: 15,
+          }
+        },
+        label: {},
+        tooltip: {trigger: 'item'}, //折叠展示的样式
+        series: [] //y轴 时间轴 数据。
+      },
+
     }
   },
   mounted() {
@@ -148,6 +202,28 @@ export default {
     })
   },
   methods: {
+    report(task_id) {
+      this.report_visible = true
+      this.now_task_id = task_id
+
+      axios.get('/get_all_times/', {
+        params: {
+          task_id: task_id
+        }
+      }).then(res => {
+        this.option.legend.data = res.data.option.legend_data;
+        this.option.xAxis.data = res.data.option.xAxis_data;
+        this.option.series = res.data.option.series;
+
+        var chart_div = document.getElementById('myChart')
+        if (chart_div.hasAttribute('_echarts_instance_')) {
+          chart_div.removeAttribute('_echarts_instance_')
+        }
+
+        let myChart = echarts.init(chart_div)
+        myChart.setOption(this.option)
+      })
+    },
     get_action() {//自定义上传文件路径
       return process.env.VUE_APP_BASE_URL + '/upload_script_file/'
     },
