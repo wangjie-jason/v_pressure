@@ -60,7 +60,7 @@
     </el-dialog>
     <el-dialog :before-close="close_tasks" title="任务列表" width="80%" :visible.sync="task_visible">
       <el-table :data="part_tasks">
-        <el-table-column property="id" label="任务ID" width="50"></el-table-column>
+        <el-table-column property="id" label="任务ID" width="100"></el-table-column>
         <el-table-column property="mq_id" label="消息ID" width="100"></el-table-column>
         <el-table-column property="project_id" label="项目ID" width="100"></el-table-column>
         <el-table-column property="status" label="状态" width="100">
@@ -109,6 +109,22 @@
     </el-dialog>
     <el-dialog :title="'性能测试报告:  '+now_task_id" :visible.sync="report_visible" width="90%">
       <div id="myChart" style="width: 100%;height: 300px"></div>
+      <el-button @click="bh">变换平均时间</el-button>
+      &nbsp;
+      每阶段及每轮并发数:{{ thread_detail }}
+      <el-table :data="time_detail">
+        <el-table-column width="100">
+          <template slot-scope="scope">
+            阶段【{{ scope.$index + 1 }}】
+          </template>
+        </el-table-column>
+        <el-table-column align="center" property="step_avg_time" label="平均时间(s)" width="100"></el-table-column>
+        <el-table-column align="center" property="step_50_line" label="50% LINE" width="100"></el-table-column>
+        <el-table-column align="center" property="step_80_line" label="80% LINE" width="100"></el-table-column>
+        <el-table-column align="center" property="step_90_line" label="90% LINE" width="100"></el-table-column>
+        <el-table-column align="center" property="step_95_line" label="95% LINE" width="100"></el-table-column>
+        <el-table-column align="center" property="step_99_line" label="99% LINE" width="100"></el-table-column>
+      </el-table>
     </el-dialog>
   </div>
 </template>
@@ -150,6 +166,9 @@ export default {
       up_script_visible: false,
       script_model: 'other',
       //
+      time_detail: [],
+      thread_detail: '',
+      bh_switch: false,
       now_task_id: '',
       report_visible: false,
       option: {
@@ -177,7 +196,7 @@ export default {
         },
         yAxis: { //y轴数据
           type: 'value',
-          name: '平均时间&',
+          name: '平均时间&线程数',
           nameTextStyle: {
             fontWeight: 400,
             fontSize: 15,
@@ -202,15 +221,22 @@ export default {
     })
   },
   methods: {
+    bh() {
+      this.bh_switch = !this.bh_switch
+      this.report(this.now_task_id)
+    },
     report(task_id) {
       this.report_visible = true
       this.now_task_id = task_id
 
       axios.get('/get_all_times/', {
         params: {
-          task_id: task_id
+          task_id: task_id,
+          bh_switch: this.bh_switch
         }
       }).then(res => {
+        this.time_detail = res.data.time_detail
+        this.thread_detail = res.data.thread_detail
         this.option.legend.data = res.data.option.legend_data;
         this.option.xAxis.data = res.data.option.xAxis_data;
         this.option.series = res.data.option.series;
