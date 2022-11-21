@@ -124,6 +124,9 @@
         <el-table-column align="center" property="step_90_line" label="90% LINE" width="100"></el-table-column>
         <el-table-column align="center" property="step_95_line" label="95% LINE" width="100"></el-table-column>
         <el-table-column align="center" property="step_99_line" label="99% LINE" width="100"></el-table-column>
+        <el-table-column align="center" property="step_fail" label="错误率" width="100"></el-table-column>
+        <el-table-column align="center" property="step_min" label="MIN" width="100"></el-table-column>
+        <el-table-column align="center" property="step_max" label="MAX" width="100"></el-table-column>
       </el-table>
     </el-dialog>
   </div>
@@ -146,26 +149,27 @@ export default {
   name: "Menu",
   data() {
     return {
+      //项目管理及任务面板相关变量
       projects: [],
       project_list_visible: false,
       username: '',
       now_path: window.location.href.split('#')[1].split('?')[0],
       task_visible: false,
       tasks: [],
-      //
+      //项目列表翻页相关变量
       projects_total: 0,
       projects_pz: 5,
       part_projects: [],
       projects_pageNumber: 1,
-      //
+      //任务列表翻页相关变量
       tasks_total: 0,
       tasks_pz: 5,
       part_tasks: [],
       tasks_pageNumber: 1,
-      //
+      //上传脚本相关变量
       up_script_visible: false,
       script_model: 'other',
-      //
+      //任务报告相关变量
       time_detail: [],
       thread_detail: '',
       bh_switch: false,
@@ -205,8 +209,7 @@ export default {
         label: {},
         tooltip: {trigger: 'item'}, //折叠展示的样式
         series: [] //y轴 时间轴 数据。
-      },
-
+      },//echarts数据源
     }
   },
   mounted() {
