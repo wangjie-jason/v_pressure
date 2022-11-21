@@ -54,13 +54,34 @@
                     <el-input v-model="scope.row.script_params"></el-input>
                   </template>
                 </el-table-column>
-
                 <el-table-column>
                   <template slot="header">
                     <el-button size="mini" @click="add_step">新增阶段</el-button>
                   </template>
                   <template slot-scope="scope">
                     <el-button size="mini" type="danger" @click="delete_step(scope.$index)">删除阶段</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-form-item>
+            <el-form-item label="变量设置">
+              <el-table :data="project_detail.variable">
+                <el-table-column label="变量名">
+                  <template slot-scope="scope">
+                    <el-input v-model="scope.row.key"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column label="内容" width="520">
+                  <template slot-scope="scope">
+                    <el-input v-model="scope.row.value"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column>
+                  <template slot="header">
+                    <el-button size="mini" @click="add_variable">新增变量</el-button>
+                  </template>
+                  <template slot-scope="scope">
+                    <el-button size="mini" @click="delete_variable(scope.$index)" type="danger">删除变量</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -131,6 +152,12 @@ export default {
     }
   },
   methods: {
+    add_variable() {
+      this.project_detail.variable.push({"key": "", "value": ""})
+    },
+    delete_variable(index) {
+      this.project_detail.variable.splice(index, 1)
+    },
     get_text(name) {
       if (name.split('/')[0] == 'other') {
         return '低性能'
