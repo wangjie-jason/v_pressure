@@ -73,7 +73,20 @@
                 </el-table-column>
                 <el-table-column label="内容" width="520">
                   <template slot-scope="scope">
-                    <el-input v-model="scope.row.value"></el-input>
+                    <el-autocomplete
+                        style="width: 100%"
+                        class="inline-input"
+                        v-model="scope.row.value"
+                        :fetch-suggestions="querySearch"
+                        placeholder="请选择输入建议">
+                      <template slot-scope="{item}">
+                        <div class="name">{{ item.des }}
+                          <span
+                              style="font-size: xx-small;color: #8c939d">{{ item.value }}
+                          </span>
+                        </div>
+                      </template>
+                    </el-autocomplete>
                   </template>
                 </el-table-column>
                 <el-table-column>
@@ -128,6 +141,7 @@ export default {
       script_list: [],
       des: "",
       run_visible: false,
+      restaurants: [],//输入框联想内容
     }
   },
   mounted() {
@@ -139,6 +153,7 @@ export default {
       this.project_detail = res.data
     })
     this.get_script_list()
+    this.restaurants = this.loadAll()
   },
   watch: {
     $route() {//监听路由，如果发生变化就执行mounted里的方法刷新页面
@@ -196,6 +211,35 @@ export default {
           })
         })
       })
+    },
+    // 输入建议函数组
+    querySearch(queryString, cb) {
+      var restaurants = this.restaurants;
+      var results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
+      cb(results)
+    },
+    createFilter(queryString) {
+      return (restaurant) => {
+        return (restaurant.des.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      }
+    },
+    loadAll() {
+      return [
+        {"value": "'xxx'", "des": "字符串"},
+        {"value": "xxx", "des": "数字"},
+        {"value": "[xx,xx,xx]", "des": "列表"},
+        {"value": "(xxx,xxx,xxx)", "des": "元组"},
+        {"value": "{'key1':'value1','key2':value2}", "des": "字典"},
+        {"value": "randint(xxx,xxx)", "des": "随机整数(全闭合区间)"},
+        {"value": "str_time_s()+'xxx'", "des": "时间戳(字符串) 精确到秒"},
+        {"value": "str_time_ms()+'xxx'", "des": "时间戳(字符串) 精确到毫秒"},
+        {"value": "str_time_μs()+'xxx'", "des": "时间戳(字符串) 精确到微秒"},
+        {"value": "fake.ssn()", "des": "随机身份证"},
+        {"value": "fake.address()", "des": "随机地址"},
+        {"value": "fake.phone_number()", "des": "随机手机号"},
+        {"value": "fake.name()", "des": "随机姓名"},
+        {"value": "fake.email()", "des": "随机邮箱"},
+      ]
     },
   },
   components: {
