@@ -64,6 +64,15 @@
                 </el-table-column>
               </el-table>
             </el-form-item>
+            <el-form-item label="数据文件" style="text-align: left">
+              <el-upload
+                  :action="'/upload_data_file/?project_id='+project_detail.id"
+                  limit="1"
+                  name="data_file">
+                <el-button>上传</el-button> &#12288;
+                <span style="color: darkgray;font-size: xx-small">文件仅限一个，在变量中使用不同的列，文件内容全部求值，无法求值一律按字符串处理</span>
+              </el-upload>
+            </el-form-item>
             <el-form-item label="变量设置">
               <el-table :data="project_detail.variable">
                 <el-table-column label="变量名">
@@ -239,6 +248,7 @@ export default {
         {"value": "fake.phone_number()", "des": "随机手机号"},
         {"value": "fake.name()", "des": "随机姓名"},
         {"value": "fake.email()", "des": "随机邮箱"},
+        {"value": "data_file(row,0)", "des": "数据文件(行下标,列下标),row为随机"},
       ]
     },
   },
