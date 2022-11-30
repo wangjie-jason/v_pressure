@@ -127,6 +127,7 @@
         <el-table-column align="center" property="step_fail" label="错误率" width="100"></el-table-column>
         <el-table-column align="center" property="step_min" label="MIN" width="100"></el-table-column>
         <el-table-column align="center" property="step_max" label="MAX" width="100"></el-table-column>
+        <el-table-column align="center" property="step_tps" label="TPS" width="100"></el-table-column>
       </el-table>
     </el-dialog>
   </div>
