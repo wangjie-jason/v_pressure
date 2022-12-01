@@ -69,8 +69,11 @@
                   :action="'/upload_data_file/?project_id='+project_detail.id"
                   limit="1"
                   name="data_file">
-                <el-button>上传</el-button> &#12288;
-                <span style="color: darkgray;font-size: xx-small">文件仅限一个，在变量中使用不同的列，文件内容全部求值，无法求值一律按字符串处理</span>
+                <el-button style="width: 100px">上传</el-button>
+                <template slot="tip">
+                  &#12288;
+                  <span style="color: darkgray;font-size: xx-small">文件仅限一个，在变量中使用不同的列，文件内容全部求值，无法求值一律按字符串处理</span>
+                </template>
               </el-upload>
             </el-form-item>
             <el-form-item label="变量设置">
