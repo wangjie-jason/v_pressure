@@ -11,22 +11,31 @@
         <el-main>
           <el-card style="height: calc(100% - 410px);width: 30%;float: left;">
             <div slot="header" class="clearfix">项目概览</div>
-            <p>平台项目数：20</p>
-            <p>历史项目数：130</p>
-            <p>平台用户数：12</p>
+            <p>项目总数：{{ home_data.all_projects_count }}</p>
+            <p>压测总数：{{ home_data.all_pressures_count }}</p>
+            <p>脚本总数：{{ home_data.all_scripts_count }}</p>
+            <p>日志总数：{{ home_data.all_logs_count }}</p>
+            <p>用户总数：{{ home_data.all_users_count }}</p>
           </el-card>
           <el-card style="height: calc(100% - 410px);width: calc(70% - 5px);">
             <div slot="header" class="clearfix">正在运行的压测任务</div>
-            <span style="font-size: xx-small">任务1</span>
-            <el-progress :percentage="50"></el-progress>
-            <span style="font-size: xx-small">任务2</span>
-            <el-progress :percentage="70"></el-progress>
-            <span style="font-size: xx-small">任务3</span>
-            <el-progress :percentage="100"></el-progress>
+
+            <el-empty v-if="empty" :image-size="40" description="暂无压测任务运行"></el-empty>
+            <!--            run_tasks = [{"des":"任务描述","progress":"50"},{}]-->
+            <div v-for="task in home_data.run_tasks">
+              <span style="font-size: xx-small">项目ID：{{ task.project_id }}</span> <br>
+              <span style="font-size: xx-small">项目名称：{{ task.project_name }}</span> <br>
+              <span style="font-size: xx-small">任务描述：{{ task.des }}</span>
+              <el-progress :percentage="task.progress"></el-progress>
+              <span style="font-size: xx-small">压测计划：</span> <br>
+              <span style="font-size: xx-small" v-for="plan in task.plan">
+                {{ plan }} <br>
+              </span>
+            </div>
           </el-card>
           <el-card style="height: 400px">
             <div slot="header" class="clearfix">
-              历史压测结果
+              平台使用情况
             </div>
             <div id="myChart" style="width: 100%;height: 300px"></div>
           </el-card>
@@ -56,6 +65,8 @@ export default {
   data() {
     return {
       username: '',
+      home_data: {},
+      empty: true,
       option: {
         legend: {data: []}, //标题
         xAxis: {
@@ -81,7 +92,7 @@ export default {
         },
         yAxis: { //y轴数据
           type: 'value',
-          name: '压测次数',
+          name: '',
           nameTextStyle: {
             fontWeight: 400,
             fontSize: 15,
@@ -95,6 +106,15 @@ export default {
   },
   mounted() {
     this.username = sessionStorage.getItem('username');
+
+    axios.get('/get_home_data/').then(res => {
+      this.home_data = res.data
+      if (this.home_data.run_tasks.length == 0) {
+        this.empty = true
+      } else {
+        this.empty = false
+      }
+    })
 
     axios.get('/get_echarts_data/').then(res => {
       this.option.legend.data = res.data.legend_data;

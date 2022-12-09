@@ -209,6 +209,16 @@ export default {
       window.location.reload()
     },
     run() {
+      // 判断阶段内是否有空值，如果有就弹提示
+      for (var i = 0; i < this.project_detail.plan.length; i++) {
+        if (this.project_detail.plan[i].name == '' || this.project_detail.plan[i].old_num == '' || this.project_detail.plan[i].old_round == '') {
+          this.$message({
+            message: "压测计划脚本名/原始并发数/原始轮数不能为空！",
+            type: "error"
+          })
+          return
+        }
+      }
       axios.post('/save_project/', this.project_detail).then(res => {
         axios.get('/add_task/', {
           params: {
