@@ -112,7 +112,7 @@
       <div id="myChart" style="width: 100%;height: 300px"></div>
       <el-button @click="bh">变换平均时间</el-button>
       &nbsp;
-      每阶段及每轮并发数:{{ thread_detail }}
+      <el-button @click="look_detail_thread">查看详细并发数</el-button>
       <el-table :data="time_detail">
         <el-table-column width="100">
           <template slot-scope="scope">
@@ -226,6 +226,11 @@ export default {
     })
   },
   methods: {
+    look_detail_thread() {
+      this.$alert(this.thread_detail, '详细并发数', {
+        confirmButtonText: '关闭',
+      });
+    },
     bh() {
       this.bh_switch = !this.bh_switch
       this.report(this.now_task_id)
@@ -240,6 +245,7 @@ export default {
           bh_switch: this.bh_switch
         }
       }).then(res => {
+        this.option.xAxis.axisLabel.interval = parseInt(res.data.option.xAxis_data.length / 30) //当x轴数据过大时，修改x轴刻度间距
         this.time_detail = res.data.time_detail
         this.thread_detail = res.data.thread_detail
         this.option.legend.data = res.data.option.legend_data;
