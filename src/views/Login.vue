@@ -1,6 +1,6 @@
 <template>
   <div class="lb">
-    <el-card style="float: right;width: 500px;height: 300px;margin-top:150px;">
+    <el-card style="float: right;width: 500px;height: 300px;margin-top:150px;background-color: grey">
       <h2>欢迎登录压测平台</h2>
       <el-form :model="form">
         <el-form-item>
@@ -85,5 +85,6 @@ export default {
   background-position: center center;
   overflow: auto;
   position: fixed;
+  background-color:grey;
 }
 </style>
